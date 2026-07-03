@@ -21,22 +21,42 @@ free docs/utility tools — all read-only.
 `initialize` runs without auth; every `tools/list` and `tools/call` needs the
 header.
 
-## Install
+## Prerequisites
+
+- Python 3.10+
+- A Keiro API key (starts with `keiro_`) from the [Keiro dashboard](https://kierolabs.space) → API Keys
+- An OpenAI API key (the ReAct agent's LLM) — or set `OPENAI_API_KEY`
+
+## One-command install + setup
 
 ```bash
-pip install langgraph langchain-mcp-adapters langchain-openai
+./setup.sh
 ```
+
+This creates a `.venv`, installs `langgraph langchain-mcp-adapters
+langchain-openai`, writes a `.env` from `.env.example` (prompting for your
+Keiro and OpenAI keys), and runs a wiring self-check. No network calls in the
+check — it only asserts the config/auth-header logic.
+
+## Run a query
+
+```bash
+./run.sh "What changed in the EU AI Act this month?"
+```
+
+`run.sh` loads `.env` and invokes `keiro-integration/keiro_langgraph.py`.
+Costs Keiro credits (the four API tools deduct per call) + your LLM spend.
 
 ## Use in your own graph
 
 ```python
 import asyncio
 from langchain_openai import ChatOpenAI
-from keiro_langgraph import build_keiro_agent
+from keiro_langgraph import build_keiro_agent  # add keiro-integration/ to sys.path
 
 async def main():
     agent = await build_keiro_agent(ChatOpenAI(model="gpt-4o-mini"))
-    r = await agent.ainvoke({"messages": [{"role": "user", "content": "What changed in the EU AI Act this month?"}]})
+    r = await agent.ainvoke({"messages": [{"role": "user", "content": "latest news on X"}]})
     print(r["messages"][-1].content)
 
 asyncio.run(main())
@@ -45,17 +65,27 @@ asyncio.run(main())
 `build_keiro_agent` loads Keiro's MCP tools via `langchain_mcp_adapters`
 `MultiServerMCPClient` and hands them to LangGraph's `create_react_agent`.
 
-## Run the demo
-
-```bash
-KEIRO_API_KEY=keiro_... OPENAI_API_KEY=sk-... \
-    python keiro_langgraph.py "latest news on X"
-```
-
-Costs Keiro credits + LLM spend.
-
 ## Verify the wiring without network or deps
 
 ```bash
-python keiro_langgraph.py check   # self-check: config + auth header
+python keiro-integration/keiro_langgraph.py check
 ```
+
+## Troubleshooting
+
+- `KEIRO_API_KEY not set` — run `./setup.sh`, or `export KEIRO_API_KEY=keiro_...` and ensure `run.sh` can read `.env`.
+- `401 / Unauthorized` from Keiro — the key is wrong, expired, or missing the `keiro_` prefix.
+- `tools/list` empty — the `Authorization: Bearer …` header isn't reaching Keiro; confirm `.env` has a non-empty `KEIRO_API_KEY`.
+- LLM errors — `OPENAI_API_KEY` missing/invalid, or the model name in `keiro_langgraph.py` (`gpt-4o-mini` by default) isn't available to your key.
+- Credit deductions you didn't expect — only `web_search`, `web_research`, `extract_url`, and `answer` cost credits; the 8 discovery tools are free.
+
+## Files
+
+- `keiro-integration/keiro_langgraph.py` — server config, client + agent builders, demo, self-check.
+- `keiro-integration/README.md` — short integration-only README.
+- `setup.sh` / `run.sh` / `.env.example` — install/run helpers.
+- `libs/`, `docs/`, `examples/` — the upstream LangGraph monorepo (vendored so the integration is self-contained).
+
+## License
+
+See `LICENSE`.
