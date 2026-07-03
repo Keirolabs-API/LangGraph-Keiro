@@ -4,6 +4,9 @@ Wire [Keiro](https://kierolabs.space)'s remote MCP server into a LangGraph
 ReAct agent. Keiro gives your agent 4 web tools (cost credits per call) plus 8
 free docs/utility tools — all read-only.
 
+> **Full documentation** — architecture, every tool & endpoint, params, credits,
+> rate limits, auth, troubleshooting: see [`docs/keiro-langgraph.md`](docs/keiro-langgraph.md).
+
 | Tool | Credits | Purpose |
 |------|---------|---------|
 | `web_search` | ~1–2 | structured web results |
