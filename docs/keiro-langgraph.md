@@ -271,10 +271,10 @@ especially on the Free tier, where `v2-fast` is ~1 req / 6 s.
 ## 8. Install & setup (one command)
 
 ```bash
-./setup.sh
+git clone https://github.com/Keirolabs-API/LangGraph-Keiro && cd LangGraph-Keiro && ./setup.sh
 ```
 
-What it does, in order:
+That clones the repo, then `setup.sh` runs. What `setup.sh` does, in order:
 
 1. Creates a `.venv` (reuses it if present) with `${PYTHON:-python3}`.
 2. Upgrades pip, then installs `langgraph langchain-mcp-adapters langchain-openai`.

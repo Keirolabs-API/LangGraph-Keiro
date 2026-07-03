@@ -33,13 +33,15 @@ header.
 ## One-command install + setup
 
 ```bash
-./setup.sh
+git clone https://github.com/Keirolabs-API/LangGraph-Keiro && cd LangGraph-Keiro && ./setup.sh
 ```
 
-This creates a `.venv`, installs `langgraph langchain-mcp-adapters
-langchain-openai`, writes a `.env` from `.env.example` (prompting for your
-Keiro and OpenAI keys), and runs a wiring self-check. No network calls in the
-check — it only asserts the config/auth-header logic.
+This clones the repo, then `setup.sh` creates a `.venv`, installs
+`langgraph langchain-mcp-adapters langchain-openai`, writes a `.env` from
+`.env.example` (prompting for your Keiro and OpenAI keys), and runs a wiring
+self-check. No network calls in the check — it only asserts the config/auth
+header logic. Re-running `./setup.sh` is idempotent and won't clobber existing
+keys.
 
 ## Run a query
 
